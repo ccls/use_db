@@ -1,6 +1,13 @@
 # Override the rails fixtures to borrow the proper model's connection when inserting or deleting
 # data whenever possible.
 
+class Fixture
+def xkey_list(connection)
+columns = @fixture.keys.collect{ |column_name| connection.quote_column_name(column_name) }
+columns.join(", ")
+end
+end
+
 class Fixtures
   alias_method :rails_delete_existing_fixtures, :delete_existing_fixtures
   def delete_existing_fixtures    
@@ -18,9 +25,10 @@ class Fixtures
     connection = m.connection
     values.each do |fixture|
       #puts "Inserting fixtures into custom DB for #{connection.current_database}.#{m.table_name}: INSERT INTO #{m.table_name} (#{fixture.key_list}) VALUES (#{fixture.value_list})"
-      connection.execute("INSERT INTO #{m.table_name} (#{fixture.key_list}) VALUES (#{fixture.value_list})", 'Fixture Insert')
+      connection.execute("INSERT INTO #{m.table_name} (#{fixture.xkey_list(connection)}) VALUES (#{fixture.value_list})", 'Fixture Insert')
     end
   end
+
   
 private
   def get_model

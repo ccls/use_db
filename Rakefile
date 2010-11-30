@@ -1,22 +1,47 @@
+require(File.join(File.dirname(__FILE__), 'config', 'boot'))
+
 require 'rake'
 require 'rake/testtask'
 require 'rake/rdoctask'
 
-desc 'Default: run unit tests.'
-task :default => :test
-
-desc 'Test the use_db plugin.'
-Rake::TestTask.new(:test) do |t|
-  t.libs << 'lib'
-  t.pattern = 'test/**/*_test.rb'
-  t.verbose = true
-end
-
-desc 'Generate documentation for the use_db plugin.'
+desc 'Generate documentation for the gem.'
 Rake::RDocTask.new(:rdoc) do |rdoc|
-  rdoc.rdoc_dir = 'rdoc'
-  rdoc.title    = 'UseDb'
-  rdoc.options << '--line-numbers' << '--inline-source'
-  rdoc.rdoc_files.include('README')
-  rdoc.rdoc_files.include('lib/**/*.rb')
+	rdoc.rdoc_dir = 'rdoc'
+	rdoc.title		= 'USE DB'
+	rdoc.options << '--line-numbers' << '--inline-source'
+	rdoc.rdoc_files.include('README')
+	rdoc.rdoc_files.include('lib/**/*.rb')
 end
+
+require 'tasks/rails'
+
+begin
+	require 'jeweler'
+	Jeweler::Tasks.new do |gem|
+		gem.name = "jakewendt-use_db"
+		gem.summary = %Q{one-line summary of your gem}
+		gem.description = %Q{longer description of your gem}
+		gem.email = "github@jake.otherinbox.com"
+		gem.homepage = "http://github.com/jakewendt/use_db"
+		gem.authors = ["David Stevenson","George 'Jake' Wendt"]
+		# gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
+
+		gem.files  = FileList['config/routes.rb']
+		gem.files += FileList['app/**/*.rb']
+		gem.files += FileList['app/**/*.erb']
+		gem.files += FileList['lib/**/*.rb']
+		gem.files += FileList['lib/**/*.rake']
+		gem.files += FileList['generators/**/*']
+		gem.files -= FileList['**/versions/*']
+
+		gem.test_files = FileList['test/**/*.rb']
+#	DO NOT INCLUDE test_helper.rb
+		gem.test_files -= FileList['test/test_helper.rb']
+
+		gem.add_dependency('rails', '~> 2')
+	end
+	Jeweler::GemcutterTasks.new
+rescue LoadError
+	puts "Jeweler (or a dependency) not available. Install it with: gem install jeweler"
+end
+

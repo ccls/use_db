@@ -25,6 +25,20 @@ namespace :db do
           when "mysql", "oci", "oracle"
             test_class.establish_connection(conn_spec)
             File.open("#{RAILS_ROOT}/db/#{RAILS_ENV}_#{options[:prefix]}_#{options[:suffix]}_structure.sql", "w+") { |f| f << test_class.connection.structure_dump }
+
+
+
+          when "sqlite", "sqlite3"
+config = test_class.establish_connection(conn_spec).connection.instance_variable_get(:@config)
+dbfile = config[:database]
+command = "#{conn_spec["adapter"]} #{dbfile} .schema > db/#{RAILS_ENV}_#{options[:prefix]}_#{options[:suffix]}_structure.sql"
+#puts "RAKE:#{command}"
+`#{command}`
+
+
+
+#            File.open("#{RAILS_ROOT}/db/#{RAILS_ENV}_#{options[:prefix]}_#{options[:suffix]}_structure.sql", "w+") { |f| f << test_class.connection.structure_dump }
+
 =begin      when "postgresql"
             ENV['PGHOST']     = abcs[RAILS_ENV]["host"] if abcs[RAILS_ENV]["host"]
             ENV['PGPORT']     = abcs[RAILS_ENV]["port"].to_s if abcs[RAILS_ENV]["port"]
@@ -69,6 +83,7 @@ namespace :db do
         puts "CLONING TEST DB: #{options.inspect}" if UseDbPlugin.debug_print
            
         options_dup = options.dup
+options_dup[:rails_env] = "test"
         conn_spec = UseDbPluginClass.get_use_db_conn_spec(options_dup)
         #establish_connection(conn_spec)
 
@@ -86,6 +101,15 @@ namespace :db do
             IO.readlines("#{RAILS_ROOT}/db/#{RAILS_ENV}_#{options[:prefix]}_#{options[:suffix]}_structure.sql").join.split(";\n\n").each do |ddl|
               test_class.connection.execute(ddl)
             end
+
+          when "sqlite","sqlite3"
+config = test_class.establish_connection(conn_spec).connection.instance_variable_get(:@config)
+dbfile = config[:database]
+command = "#{conn_spec["adapter"]} #{dbfile} < db/development_#{options[:prefix]}_#{options[:suffix]}_structure.sql"
+#puts "RAKE:#{command}"
+`#{command}`
+
+
 =begin      when "postgresql"
             ENV['PGHOST']     = abcs["test"]["host"] if abcs["test"]["host"]
             ENV['PGPORT']     = abcs["test"]["port"].to_s if abcs["test"]["port"]
@@ -132,6 +156,11 @@ namespace :db do
             end
           when "firebird"
             test_class.connection.recreate_database!
+
+          when "sqlite","sqlite3"
+dbfile = test_class.connection.instance_variable_get(:@config)[:database]
+File.delete(dbfile) if File.exist?(dbfile)
+
 =begin
           when "postgresql"
             ENV['PGHOST']     = abcs["test"]["host"] if abcs["test"]["host"]
