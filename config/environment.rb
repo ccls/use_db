@@ -14,15 +14,23 @@ Rails::Initializer.run do |config|
 	config.plugins = [:use_db]
 
 	if RUBY_PLATFORM =~ /java/
+#
+#	Testing had 
+#		SystemStackError: stack level too deep
+#    /test/unit/gamma_test.rb:13:in `test_should_create'
+#
+#	I couldn't resolve, so tried an updated adapter and it worked.
+#	Perhaps the problems that I had with 1.0.1 have been resolved.
+#
 		#	For functionality with rvm/jruby
 		#	I expected to have to change database.yml for this but didn't
 		config.gem 'activerecord-jdbcsqlite3-adapter',
-			:lib => 'active_record/connection_adapters/jdbcsqlite3_adapter',
-			:version => '~>0.9'
+			:lib => 'active_record/connection_adapters/jdbcsqlite3_adapter'	#,
+#			:version => '~>0.9'
 		#	1.0.1 is for rails 3 I think
 		config.gem 'activerecord-jdbcmysql-adapter',
-			:lib => 'active_record/connection_adapters/jdbcmysql_adapter',
-			:version => '~>0.9'
+			:lib => 'active_record/connection_adapters/jdbcmysql_adapter'	#,
+#			:version => '~>0.9'
 		#	1.0.1 is for rails 3 I think
 
 		config.gem 'jdbc-mysql', :lib => 'jdbc/mysql'
@@ -44,6 +52,7 @@ Rails::Initializer.run do |config|
 		config.gem 'mysql'
 		config.gem "sqlite3-ruby", :lib => "sqlite3"
 	end
+	config.gem "jakewendt-simply_testable", :lib => "simply_testable"
 
 	config.time_zone = 'UTC'
 end
