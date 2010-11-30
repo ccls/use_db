@@ -1,3 +1,4 @@
+require 'active_record'
 require "use_db/use_db_plugin"
 require "use_db/use_db_test"
 require "use_db/test_model"
