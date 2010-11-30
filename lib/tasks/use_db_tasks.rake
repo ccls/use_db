@@ -6,8 +6,8 @@
 namespace :db do
   namespace :structure do
     task :dump_use_db do            
-      require "use_db.rb"
-      require "test_model.rb"
+#      require "use_db.rb"
+#      require "test_model.rb"
       
       UseDbTest.other_databases.each do |options| 
         puts "DUMPING TEST DB: #{options.inspect}" if UseDbPlugin.debug_print
@@ -75,8 +75,8 @@ command = "#{conn_spec["adapter"]} #{dbfile} .schema > db/#{RAILS_ENV}_#{options
     task :clone_structure => "db:test:clone_structure_use_db"
     
     task :clone_structure_use_db => ["db:structure:dump_use_db","db:test:purge_use_db"] do
-      require "use_db.rb"
-      require "test_model.rb"
+#      require "use_db.rb"
+#      require "test_model.rb"
       
       UseDbTest.other_databases.each do |options|   
         
@@ -134,8 +134,8 @@ command = "#{conn_spec["adapter"]} #{dbfile} < db/development_#{options[:prefix]
     end
     
     task :purge_use_db => "db:test:purge" do
-      require "use_db.rb"
-      require "test_model.rb"
+#      require "use_db.rb"
+#      require "test_model.rb"
 
       UseDbTest.other_databases.each do |options|
         puts "PURGING TEST DB: #{options.inspect}" if UseDbPlugin.debug_print
