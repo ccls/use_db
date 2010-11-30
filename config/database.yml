@@ -76,7 +76,7 @@ beta_production:
 gamma_development:
   adapter: mysql
   encoding: utf8
-  database: use_db_demo_gamma_development
+  database: use_db_gamma_development
   username: root
   password:
   host: localhost
@@ -87,7 +87,7 @@ gamma_development:
 gamma_test:
   adapter: mysql
   encoding: utf8
-  database: use_db_demo_gamma_test
+  database: use_db_gamma_test
   username: root
   password:
   host: localhost
@@ -95,7 +95,7 @@ gamma_test:
 gamma_production:
   adapter: mysql
   encoding: utf8
-  database: use_db_demo_gamma_production
+  database: use_db_gamma_production
   username: root
   password:
   host: localhost
