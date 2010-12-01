@@ -32,4 +32,5 @@ Rails::Initializer.run do |config|
 		File.join( Rails.root,'config','beta_database.yml'),
 		File.join( Rails.root,'config','gamma_database.yml')
 	]
+	USE_DB_CONFIG = "#{RAILS_ROOT}/config/my_use_db.yml"
 end

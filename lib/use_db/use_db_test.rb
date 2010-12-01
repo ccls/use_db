@@ -3,7 +3,8 @@ class UseDbTest
 	extend UseDbPlugin
 
 	def self.other_databases
-		YAML.load(File.read("#{RAILS_ROOT}/config/use_db.yml")).values.collect(&:symbolize_keys!)
+		use_db_config = (defined?(USE_DB_CONFIG)) ? USE_DB_CONFIG : "#{RAILS_ROOT}/config/use_db.yml"
+		YAML.load(File.read(use_db_config)).values.collect(&:symbolize_keys!)
 	end
 
 	def self.prepare_test_db(options)
