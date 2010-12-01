@@ -25,14 +25,12 @@ class UseDbTest
 		case conn_spec["adapter"]
 			when "mysql", "oci", "oracle"
 				test_class.establish_connection(conn_spec)
-#				File.open("#{RAILS_ROOT}/db/#{RAILS_ENV}_structure.sql", "w+") { |f| f << test_class.connection.structure_dump }
-				File.open("#{RAILS_ROOT}/db/#{RAILS_ENV}_#{options[:prefix]}_#{options[:suffix]}_structure.sql", "w+") { |f| f << test_class.connection.structure_dump }
-
+				File.open(structure_sql(options), "w+") { |f| f << test_class.connection.structure_dump }
 
 			when "sqlite", "sqlite3"
 				config = test_class.establish_connection(conn_spec).connection.instance_variable_get(:@config)
 				dbfile = config[:database]
-				command = "#{conn_spec["adapter"]} #{dbfile} .schema > db/#{RAILS_ENV}_#{options[:prefix]}_#{options[:suffix]}_structure.sql"
+				command = "#{conn_spec["adapter"]} #{dbfile} .schema > #{structure_sql(options)}"
 				#puts "RUBY:#{command}"
 				`#{command}`
 
@@ -75,13 +73,11 @@ class UseDbTest
 		case conn_spec["adapter"]
 			when "mysql"
 				test_class.connection.execute('SET foreign_key_checks = 0')
-				IO.readlines("#{RAILS_ROOT}/db/#{RAILS_ENV}_structure.sql").join.split("\n\n").each do |table|
-				#IO.readlines("#{RAILS_ROOT}/db/#{RAILS_ENV}_#{options[:prefix]}_#{options[:suffix]}_structure.sql").join.split("\n\n").each do |table|
+				IO.readlines(structure_sql(options)).join.split("\n\n").each do |table|
 					test_class.connection.execute(table)
 				end
 			when "oci", "oracle"
-				IO.readlines("#{RAILS_ROOT}/db/#{RAILS_ENV}_structure.sql").join.split(";\n\n").each do |ddl|
-				#IO.readlines("#{RAILS_ROOT}/db/#{RAILS_ENV}_#{options[:prefix]}_#{options[:suffix]}_structure.sql").join.split(";\n\n").each do |ddl|
+				IO.readlines(structure_sql(options)).join.split(";\n\n").each do |ddl|
 
 					test_class.connection.execute(ddl)
 				end
@@ -89,7 +85,7 @@ class UseDbTest
 			when "sqlite","sqlite3"
 				config = test_class.establish_connection(conn_spec).connection.instance_variable_get(:@config)
 				dbfile = config[:database]
-				command = "#{conn_spec["adapter"]} #{dbfile} < db/#{RAILS_ENV}_#{options[:prefix]}_#{options[:suffix]}_structure.sql"
+				command = "#{conn_spec["adapter"]} #{dbfile} < #{structure_sql(options)}"
 				#puts "RUBY:#{command}"
 				`#{command}`
 
@@ -166,4 +162,9 @@ class UseDbTest
 		create_test_model(model_name, prefix, suffix, rails_env)
 		return eval(model_name)
 	end
+
+	def self.structure_sql(options)
+		"#{RAILS_ROOT}/db/#{RAILS_ENV}_#{options[:prefix]}_#{options[:suffix]}_structure.sql"
+	end
+
 end
