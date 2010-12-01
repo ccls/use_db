@@ -1,5 +1,3 @@
-# UseDb
-
 module UseDbPlugin
 	# options can have one or the other of the following options:
 	#	 :prefix - Specify the prefix to append to the RAILS_ENV when finding the adapter secification in database.yml
@@ -47,7 +45,7 @@ module UseDbPlugin
 	end	
 	
 	def get_use_db_conn_spec(options)
-		options.symbolize_keys
+		options.symbolize_keys!				#	without the bang, this was pointless
 		suffix = options.delete(:suffix)
 		prefix = options.delete(:prefix)
 		rails_env = options.delete(:rails_env) || RAILS_ENV
@@ -60,6 +58,7 @@ module UseDbPlugin
 			return connections[str]
 		end
 	end
+
 end
 
 class UseDbPluginClass
