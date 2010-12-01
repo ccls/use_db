@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{jakewendt-use_db}
-  s.version = "0.3.0"
+  s.version = "0.3.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["David Stevenson", "George 'Jake' Wendt"]
-  s.date = %q{2010-11-29}
+  s.date = %q{2010-12-01}
   s.description = %q{longer description of your gem}
   s.email = %q{github@jake.otherinbox.com}
   s.extra_rdoc_files = [
@@ -25,6 +25,7 @@ Gem::Specification.new do |s|
     "config/routes.rb",
     "lib/tasks/use_db_tasks.rake",
     "lib/use_db.rb",
+    "lib/use_db/configurations.rb",
     "lib/use_db/migration.rb",
     "lib/use_db/override_fixtures.rb",
     "lib/use_db/override_test_case.rb",

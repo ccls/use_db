@@ -28,5 +28,8 @@ Rails::Initializer.run do |config|
 
 	config.time_zone = 'UTC'
 
-	OTHER_DB_FILES =[File.join( Rails.root,'config','gamma_database.yml')]
+	OTHER_DB_FILES =[
+		File.join( Rails.root,'config','beta_database.yml'),
+		File.join( Rails.root,'config','gamma_database.yml')
+	]
 end
