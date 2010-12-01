@@ -25,7 +25,8 @@ class UseDbTest
 		case conn_spec["adapter"]
 			when "mysql", "oci", "oracle"
 				test_class.establish_connection(conn_spec)
-				File.open("#{RAILS_ROOT}/db/#{RAILS_ENV}_structure.sql", "w+") { |f| f << test_class.connection.structure_dump }
+#				File.open("#{RAILS_ROOT}/db/#{RAILS_ENV}_structure.sql", "w+") { |f| f << test_class.connection.structure_dump }
+				File.open("#{RAILS_ROOT}/db/#{RAILS_ENV}_#{options[:prefix]}_#{options[:suffix]}_structure.sql", "w+") { |f| f << test_class.connection.structure_dump }
 
 
 			when "sqlite", "sqlite3"
@@ -75,10 +76,13 @@ class UseDbTest
 			when "mysql"
 				test_class.connection.execute('SET foreign_key_checks = 0')
 				IO.readlines("#{RAILS_ROOT}/db/#{RAILS_ENV}_structure.sql").join.split("\n\n").each do |table|
+				#IO.readlines("#{RAILS_ROOT}/db/#{RAILS_ENV}_#{options[:prefix]}_#{options[:suffix]}_structure.sql").join.split("\n\n").each do |table|
 					test_class.connection.execute(table)
 				end
 			when "oci", "oracle"
 				IO.readlines("#{RAILS_ROOT}/db/#{RAILS_ENV}_structure.sql").join.split(";\n\n").each do |ddl|
+				#IO.readlines("#{RAILS_ROOT}/db/#{RAILS_ENV}_#{options[:prefix]}_#{options[:suffix]}_structure.sql").join.split(";\n\n").each do |ddl|
+
 					test_class.connection.execute(ddl)
 				end
 
