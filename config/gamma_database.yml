@@ -13,16 +13,16 @@ gamma_development:
 # re-generated from your development database when you run "rake".
 # Do not set this db to the same as development or production.
 gamma_test:
-#  adapter: sqlite3
-#  pool: 5
-#  timeout: 5000
-#  database: db/use_db_gamma_test.sqlite3
-  adapter: mysql
-  encoding: utf8
-  database: use_db_gamma_test
-  username: root
-  password:
-  host: localhost
+  adapter: sqlite3
+  pool: 5
+  timeout: 5000
+  database: db/use_db_gamma_test.sqlite3
+#  adapter: mysql
+#  encoding: utf8
+#  database: use_db_gamma_test
+#  username: root
+#  password:
+#  host: localhost
 
 
 #	unfortunately, the current use_db technique does not allow for

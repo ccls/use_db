@@ -1,22 +1,3 @@
-require 'active_record/base'
-require 'active_record/schema'
-class ActiveRecord::Migration
-	@@connection = nil
-	cattr_accessor :connection
-#	def self.connection
-#		@@connection || ActiveRecord::Base.connection
-#	end
-#	def self.connection=(new_connection)
-#		@@connection=new_connection
-#	end
-end
-#class ActiveRecord::Schema
-#	def self.define(info={}, &block)
-#		puts "In define"
-#		instance_eval(&block)
-#	end
-#end
-
 class UseDbTest
 
 	extend UseDbPlugin
@@ -27,18 +8,18 @@ class UseDbTest
 	end
 
 	def self.prepare_test_db(options)
-#		schema_dump(options)
-#		schema_load(options)
-		dump_db_structure(options)
-		purge_db(options)
-		clone_db_structure(options)
+		schema_dump(options)
+		schema_load(options)
+#		dump_db_structure(options)
+#		purge_db(options)
+#		clone_db_structure(options)
 #		ENV['RAILS_ENV'] = 'test'
 #    ActiveRecord::Migration.verbose = ENV["VERBOSE"] ? ENV["VERBOSE"] == "true" : true
 #    ActiveRecord::Migrator.migrate("db/migrate/", ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
 	end
 	
 	def self.schema_dump(options)
-puts "In schema_dump"
+		#	puts "In schema_dump"
 		options_dup = options.dup
 		options_dup[:rails_env] = "development"		
 		conn_spec = get_use_db_conn_spec(options_dup)
@@ -51,19 +32,26 @@ puts "In schema_dump"
 	end
 
 	def self.schema_load(options)
-puts "In schema_load"
+		#	puts "In schema_load"
 		options_dup = options.dup
-		options_dup[:rails_env] = "development"		
+#		options_dup[:rails_env] = "development"		
 		conn_spec = get_use_db_conn_spec(options_dup)
-		test_class = setup_test_model(options[:prefix], options[:suffix], "ForSchemaDump")
-		test_class.establish_connection(conn_spec)
-ActiveRecord::Migration.connection = test_class.connection
+		ActiveRecord::Base.establish_connection(conn_spec)
+#		ActiveRecord::Base.establish_connection(ActiveRecord::Base.configurations["#{options[:prefix]}test"])
 		file = schema_file(options)
 		if File.exists?(file)
-puts "loading #{file}"
-#test_class.connection do
-	load(file)
-#end
+			#	puts "loading #{file}"
+			ENV['SCHEMA'] = file
+#			require 'rake'
+#			require 'rake/testtask'
+#			require 'rake/rdoctask'
+#			require 'tasks/rails'
+			ActiveRecord::Schema.verbose = false
+			load(file)
+#			Rake::Task["db:schema:load"].invoke
+#			Rake::Task["db:schema:load"].reenable
+			ActiveRecord::Base.connection.disconnect!
+			ActiveRecord::Base.establish_connection(ActiveRecord::Base.configurations["test"])
 		else
 			abort %{#{file} doesn't exist yet. Run "rake db:migrate" to create it then try again. If you do not intend to use a database, you should instead alter #{RAILS_ROOT}/config/environment.rb to prevent active_record from loading: config.frameworks -= [ :active_record ]}
 		end
