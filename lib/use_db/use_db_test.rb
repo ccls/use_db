@@ -1,3 +1,22 @@
+require 'active_record/base'
+require 'active_record/schema'
+class ActiveRecord::Migration
+	@@connection = nil
+	cattr_accessor :connection
+#	def self.connection
+#		@@connection || ActiveRecord::Base.connection
+#	end
+#	def self.connection=(new_connection)
+#		@@connection=new_connection
+#	end
+end
+#class ActiveRecord::Schema
+#	def self.define(info={}, &block)
+#		puts "In define"
+#		instance_eval(&block)
+#	end
+#end
+
 class UseDbTest
 
 	extend UseDbPlugin
@@ -8,11 +27,48 @@ class UseDbTest
 	end
 
 	def self.prepare_test_db(options)
+#		schema_dump(options)
+#		schema_load(options)
 		dump_db_structure(options)
 		purge_db(options)
 		clone_db_structure(options)
+#		ENV['RAILS_ENV'] = 'test'
+#    ActiveRecord::Migration.verbose = ENV["VERBOSE"] ? ENV["VERBOSE"] == "true" : true
+#    ActiveRecord::Migrator.migrate("db/migrate/", ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
 	end
 	
+	def self.schema_dump(options)
+puts "In schema_dump"
+		options_dup = options.dup
+		options_dup[:rails_env] = "development"		
+		conn_spec = get_use_db_conn_spec(options_dup)
+		test_class = setup_test_model(options[:prefix], options[:suffix], "ForSchemaDump")
+		test_class.establish_connection(conn_spec)
+		require 'active_record/schema_dumper'
+		File.open(schema_file(options), "w") do |file|
+			ActiveRecord::SchemaDumper.dump(test_class.connection, file)
+		end
+	end
+
+	def self.schema_load(options)
+puts "In schema_load"
+		options_dup = options.dup
+		options_dup[:rails_env] = "development"		
+		conn_spec = get_use_db_conn_spec(options_dup)
+		test_class = setup_test_model(options[:prefix], options[:suffix], "ForSchemaDump")
+		test_class.establish_connection(conn_spec)
+ActiveRecord::Migration.connection = test_class.connection
+		file = schema_file(options)
+		if File.exists?(file)
+puts "loading #{file}"
+#test_class.connection do
+	load(file)
+#end
+		else
+			abort %{#{file} doesn't exist yet. Run "rake db:migrate" to create it then try again. If you do not intend to use a database, you should instead alter #{RAILS_ROOT}/config/environment.rb to prevent active_record from loading: config.frameworks -= [ :active_record ]}
+		end
+	end
+
 	def self.dump_db_structure(options)
 		options_dup = options.dup
 		options_dup[:rails_env] = "development"		
@@ -67,7 +123,7 @@ class UseDbTest
 		conn_spec = get_use_db_conn_spec(options_dup)
 		#establish_connection(conn_spec)
 		
-		test_class = setup_test_model(options[:prefix], options[:suffix], "ForClone")		
+		test_class = setup_test_model(options[:prefix], options[:suffix], "ForClone")
 		
 	 # puts "Cloning DB structure #{test_class.inspect}..."
 		
@@ -116,7 +172,7 @@ class UseDbTest
 		conn_spec = get_use_db_conn_spec(options_dup)
 		#establish_connection(conn_spec)
 		
-		test_class = setup_test_model(options[:prefix], options[:suffix], "ForPurge")		
+		test_class = setup_test_model(options[:prefix], options[:suffix], "ForPurge")
 		
 		case conn_spec["adapter"]
 			when "mysql"
@@ -166,6 +222,10 @@ class UseDbTest
 
 	def self.structure_sql(options)
 		"#{RAILS_ROOT}/db/#{RAILS_ENV}_#{options[:prefix]}_#{options[:suffix]}_structure.sql"
+	end
+
+	def self.schema_file(options)
+		"#{RAILS_ROOT}/db/#{RAILS_ENV}_#{options[:prefix]}_#{options[:suffix]}_schema.rb"
 	end
 
 end

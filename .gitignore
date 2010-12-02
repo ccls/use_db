@@ -1,3 +1,4 @@
+db/*_schema.rb
 db/*_structure.sql
 versions
 log
