@@ -19,8 +19,8 @@ begin
 	require 'jeweler'
 	Jeweler::Tasks.new do |gem|
 		gem.name = "jakewendt-use_db"
-		gem.summary = %Q{one-line summary of your gem}
-		gem.description = %Q{longer description of your gem}
+		gem.summary = %Q{Gem version of use_db rails plugin}
+		gem.description = %Q{Gem version of use_db rails plugin}
 		gem.email = "github@jake.otherinbox.com"
 		gem.homepage = "http://github.com/jakewendt/use_db"
 		gem.authors = ["David Stevenson","George 'Jake' Wendt"]

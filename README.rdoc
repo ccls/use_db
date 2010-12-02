@@ -77,7 +77,25 @@ You don't want it to execute for every test, so put the following guards around 
 Fixtures will automatically be loaded into the correct database as long as the fixture name corresponds
 to the name of a model.  For example, if I have a model called SecdbUser who uses a different database and
 I create a fixture file called secdb_users.yml, the fixture loader will use whatever database connection
-belongs to hte SecdbUser model.
+belongs to the SecdbUser model.
 
 There is currently no other way to force a fixture to use a specific database (sorry, no join tables yet),
 like there is for migrations.
+
+
+
+
+== Gemified with Jeweler
+
+ vi Rakefile
+ rake version:write
+
+ rake version:bump:patch
+ rake version:bump:minor
+ rake version:bump:major
+
+ rake gemspec
+
+ rake install
+ rake release
+
