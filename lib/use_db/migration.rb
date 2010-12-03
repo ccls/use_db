@@ -6,12 +6,6 @@ module ActiveRecord
 					arguments[0] = Migrator.proper_table_name(arguments.first) unless arguments.empty? || method == :execute
 					if (self.respond_to?(:database_model))
 						write "Using custom database model's connection (#{self.database_model}) for this migration"
-
-#	why? Because schema_migration numbers don't make it into the right db.
-#	now they do, but still can't
-#rake db:migrate VERSION=20101130003113_create_widgets.rb
-#	if that version is in a use_db database
-						
 						eval("#{self.database_model}.connection.send(method, *arguments, &block)")
 					else
 						ActiveRecord::Base.connection.send(method, *arguments, &block)
@@ -26,12 +20,24 @@ module ActiveRecord
 	end
 end
 
+#class ActiveRecord::ConnectionAdapters::ConnectionHandler
+#	def retrieve_connection_pool_with_diff_conn(klass)
+##		klass = ($my_klass.nil?)? klass : $my_klass
+##puts klass
+#		retrieve_connection_pool_without_diff_conn(klass)
+##		$my_klass = nil
+#	end
+#	alias_method_chain :retrieve_connection_pool, :diff_conn
+#end
+
 class ActiveRecord::Migrator
 	def record_version_state_after_migrating_with_connection_swap(version)
 		just_migrated = migrations.detect { |m| m.version == version }
 		load(just_migrated.filename)
 		migration_model = just_migrated.name.constantize
 		if migration_model.respond_to?(:database_model)
+#$my_klass = migration_model.database_model.constantize
+#puts $my_klass.name
 			ar_model = migration_model.database_model.constantize
 			ar_model.connection.initialize_schema_migrations_table
 			sm_table = self.class.schema_migrations_table_name
@@ -49,5 +55,3 @@ class ActiveRecord::Migrator
 	end
 	alias_method_chain :record_version_state_after_migrating, :connection_swap
 end
-
-
