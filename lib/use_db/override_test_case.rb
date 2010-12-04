@@ -1,79 +1,138 @@
-# puts "Overriding Test::Unit::TestCase"
+#	puts "Overriding ActiveRecord::TestFixtures"
 
-module Test #:nodoc:
-	module Unit #:nodoc:
-		class TestCase #:nodoc:
-			#alias_method :rails_setup_with_fixtures, :setup_with_fixtures
-			
-			def setup_with_fixtures
-				return unless defined?(ActiveRecord::Base) && !ActiveRecord::Base.configurations.blank?
-				
-				if pre_loaded_fixtures && !use_transactional_fixtures
-					raise RuntimeError, 'pre_loaded_fixtures requires use_transactional_fixtures' 
-				end
+require 'active_record'
+require 'active_record/fixtures'
+module ActiveRecord::TestFixtures
+#	alias_method :rails_setup_fixtures, :setup_fixtures
+	def setup_fixtures
+		UseDbPlugin.all_use_dbs.collect do |klass|
+			return unless defined?(ActiveRecord) && !ActiveRecord::Base.configurations.blank?
 
-				@fixture_cache = Hash.new
+			if pre_loaded_fixtures && !use_transactional_fixtures
+				raise RuntimeError, 'pre_loaded_fixtures requires use_transactional_fixtures'
+			end 
 
-				# Load fixtures once and begin transaction.
-				if use_transactional_fixtures?
-					# puts "Using transactional fixtures" 
-					if @@already_loaded_fixtures[self.class]
-						@loaded_fixtures = @@already_loaded_fixtures[self.class]
-					else
-						load_fixtures
-						@@already_loaded_fixtures[self.class] = @loaded_fixtures
-					end
-					
-					UseDbPlugin.all_use_dbs.collect do |klass|
-						klass
-					end
+			@fixture_cache = {}
+			@@already_loaded_fixtures ||= {}
 
-					# puts "Establishing TRANSACTION for #{ActiveRecord::Base.active_connections.values.uniq.length} open connections"
-
-					ActiveRecord::Base.active_connections.values.uniq.each do |conn|
-						# puts "BEGIN on #{klass_name}: #{Thread.current['open_transactions']}"
-						Thread.current['open_transactions'] ||= 0
-						Thread.current['open_transactions'] += 1
-						conn.begin_db_transaction
-					end
-					
-				# Load fixtures for every test.
+			# Load fixtures once and begin transaction.
+			if run_in_transaction?
+				if @@already_loaded_fixtures[self.class]
+					@loaded_fixtures = @@already_loaded_fixtures[self.class]
 				else
-					# puts "NOT Using transactional fixtures: #{self.use_transactional_fixtures}"
-					@@already_loaded_fixtures[self.class] = nil
 					load_fixtures
-				end
+					@@already_loaded_fixtures[self.class] = @loaded_fixtures
+				end 
+				klass.connection.increment_open_transactions
+				klass.connection.transaction_joinable = false
+				klass.connection.begin_db_transaction
+			# Load fixtures for every test.
+			else
+				Fixtures.reset_cache
+				@@already_loaded_fixtures[self.class] = nil 
+				load_fixtures
+			end 
 
-				# Instantiate fixtures for every test if requested.
-				if use_instantiated_fixtures
-					# puts "Instantiating fixtures for #{self.class}"
-					instantiate_fixtures 
-				else
-					# puts "Not instantiating fixtures"
-				end
+			# Instantiate fixtures for every test if requested.
+			instantiate_fixtures if use_instantiated_fixtures
+		end
+	end
+
+#	alias_method :rails_teardown_fixtures, :teardown_fixtures
+	def teardown_fixtures
+		UseDbPlugin.all_use_dbs.collect do |klass|
+			return unless defined?(ActiveRecord) && !ActiveRecord::Base.configurations.blank?
+
+			unless run_in_transaction?
+				Fixtures.reset_cache
 			end
 
-			#alias_method :rails_teardown_with_fixtures, :teardown_with_fixtures
-
-			def teardown_with_fixtures				
-				# puts "Finshing TRANSACTION for #{ActiveRecord::Base.active_connections.values.uniq.length} open connections"
-
-				return unless defined?(ActiveRecord::Base) && !ActiveRecord::Base.configurations.blank?
-
-				# Rollback changes if a transaction is active				
-				ActiveRecord::Base.active_connections.values.uniq.each do |conn|									
-					if use_transactional_fixtures?
-						conn.rollback_db_transaction
-						Thread.current['open_transactions'] = 0
-					end
-					
-					# klass.verify_active_connections!					
-				end
+			# Rollback changes if a transaction is active.
+			if run_in_transaction? && klass.connection.open_transactions != 0
+				klass.connection.rollback_db_transaction
+				klass.connection.decrement_open_transactions
 			end
-			
-			def self.uses_db?
-				return true
-			end			
+			klass.clear_active_connections!
 		end
 	end
 end
+
+# puts "Overriding Test::Unit::TestCase"
+#
+#module Test #:nodoc:
+#	module Unit #:nodoc:
+#		class TestCase #:nodoc:
+#			#alias_method :rails_setup_with_fixtures, :setup_with_fixtures
+#			
+#			def setup_with_fixtures
+#				return unless defined?(ActiveRecord::Base) && !ActiveRecord::Base.configurations.blank?
+#				
+#				if pre_loaded_fixtures && !use_transactional_fixtures
+#					raise RuntimeError, 'pre_loaded_fixtures requires use_transactional_fixtures' 
+#				end
+#
+#				@fixture_cache = Hash.new
+#
+#				# Load fixtures once and begin transaction.
+#				if use_transactional_fixtures?
+#					# puts "Using transactional fixtures" 
+#					if @@already_loaded_fixtures[self.class]
+#						@loaded_fixtures = @@already_loaded_fixtures[self.class]
+#					else
+#						load_fixtures
+#						@@already_loaded_fixtures[self.class] = @loaded_fixtures
+#					end
+#					
+#					UseDbPlugin.all_use_dbs.collect do |klass|
+#						klass
+#					end
+#
+#					# puts "Establishing TRANSACTION for #{ActiveRecord::Base.active_connections.values.uniq.length} open connections"
+#
+#					ActiveRecord::Base.active_connections.values.uniq.each do |conn|
+#						# puts "BEGIN on #{klass_name}: #{Thread.current['open_transactions']}"
+#						Thread.current['open_transactions'] ||= 0
+#						Thread.current['open_transactions'] += 1
+#						conn.begin_db_transaction
+#					end
+#					
+#				# Load fixtures for every test.
+#				else
+#					# puts "NOT Using transactional fixtures: #{self.use_transactional_fixtures}"
+#					@@already_loaded_fixtures[self.class] = nil
+#					load_fixtures
+#				end
+#
+#				# Instantiate fixtures for every test if requested.
+#				if use_instantiated_fixtures
+#					# puts "Instantiating fixtures for #{self.class}"
+#					instantiate_fixtures 
+#				else
+#					# puts "Not instantiating fixtures"
+#				end
+#			end
+#
+#			#alias_method :rails_teardown_with_fixtures, :teardown_with_fixtures
+#
+#			def teardown_with_fixtures				
+#				# puts "Finshing TRANSACTION for #{ActiveRecord::Base.active_connections.values.uniq.length} open connections"
+#
+#				return unless defined?(ActiveRecord::Base) && !ActiveRecord::Base.configurations.blank?
+#
+#				# Rollback changes if a transaction is active				
+#				ActiveRecord::Base.active_connections.values.uniq.each do |conn|									
+#					if use_transactional_fixtures?
+#						conn.rollback_db_transaction
+#						Thread.current['open_transactions'] = 0
+#					end
+#					
+#					# klass.verify_active_connections!					
+#				end
+#			end
+#			
+#			def self.uses_db?
+#				return true
+#			end			
+#		end
+#	end
+#end
