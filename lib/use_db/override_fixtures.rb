@@ -37,7 +37,7 @@ class Fixtures
 #		end
 
 	def read_fixture_files_with_connection_set
-		@connection = model_class.connection
+		@connection = (model_class||ActiveRecord::Base).connection
 		read_fixture_files_without_connection_set
 	end
 	alias_method_chain :read_fixture_files, :connection_set
