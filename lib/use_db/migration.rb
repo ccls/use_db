@@ -18,6 +18,18 @@ module ActiveRecord
 			end
 		end
 	end
+	class Migrator
+		class << self
+			def get_all_versions
+#				puts "in use_db get_all_versions"
+#				Base.connection.select_values("SELECT version FROM #{schema_migrations_table_name}").map(&:to_i).sort
+				UseDbPlugin.all_use_dbs.collect(&:connection).collect{|c|
+					c.initialize_schema_migrations_table	# in case it doesn't exist
+					c.select_values("SELECT version FROM #{schema_migrations_table_name}").map(&:to_i)
+				}.flatten.uniq.sort
+			end
+		end
+	end
 end
 
 #class ActiveRecord::ConnectionAdapters::ConnectionHandler
