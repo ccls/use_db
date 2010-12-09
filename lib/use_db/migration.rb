@@ -42,29 +42,27 @@ end
 #	alias_method_chain :retrieve_connection_pool, :diff_conn
 #end
 
-#	This is nice, but unnecessary
-#class ActiveRecord::Migrator
-#	def record_version_state_after_migrating_with_connection_swap(version)
-#		just_migrated = migrations.detect { |m| m.version == version }
-#		load(just_migrated.filename)
-#		migration_model = just_migrated.name.constantize
-#		if migration_model.respond_to?(:database_model)
-##$my_klass = migration_model.database_model.constantize
-##puts $my_klass.name
-#			ar_model = migration_model.database_model.constantize
-#			ar_model.connection.initialize_schema_migrations_table
-#			sm_table = self.class.schema_migrations_table_name
-#			@migrated_versions ||= []
-#			if down?
-#				@migrated_versions.delete(version.to_i)
-#				ar_model.connection.update("DELETE FROM #{sm_table} WHERE version = '#{version}'")
-#			else
-#				@migrated_versions.push(version.to_i).sort!
-#				ar_model.connection.insert("INSERT INTO #{sm_table} (version) VALUES ('#{version}')")
-#			end
-#		else
-#			record_version_state_after_migrating_without_connection_swap(version)
-#		end
-#	end
-#	alias_method_chain :record_version_state_after_migrating, :connection_swap
-#end
+
+class ActiveRecord::Migrator
+	def record_version_state_after_migrating_with_connection_swap(version)
+		just_migrated = migrations.detect { |m| m.version == version }
+		load(just_migrated.filename)
+		migration_model = just_migrated.name.constantize
+		if migration_model.respond_to?(:database_model)
+			ar_model = migration_model.database_model.constantize
+			ar_model.connection.initialize_schema_migrations_table
+			sm_table = self.class.schema_migrations_table_name
+			@migrated_versions ||= []
+			if down?
+				@migrated_versions.delete(version.to_i)
+				ar_model.connection.update("DELETE FROM #{sm_table} WHERE version = '#{version}'")
+			else
+				@migrated_versions.push(version.to_i).sort!
+				ar_model.connection.insert("INSERT INTO #{sm_table} (version) VALUES ('#{version}')")
+			end
+		else
+			record_version_state_after_migrating_without_connection_swap(version)
+		end
+	end
+	alias_method_chain :record_version_state_after_migrating, :connection_swap
+end
