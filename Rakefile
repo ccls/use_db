@@ -34,6 +34,7 @@ begin
 		gem.files += FileList['generators/**/*']
 		gem.files -= FileList['**/versions/*']
 
+		gem.test_files = []
 #		gem.test_files = FileList['test/**/*.rb']
 #	DO NOT INCLUDE test_helper.rb
 #		gem.test_files -= FileList['test/test_helper.rb']
