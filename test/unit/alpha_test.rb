@@ -23,4 +23,8 @@ class AlphaTest < ActiveSupport::TestCase
 		assert model_name.constantize.uses_db?
 	end
 
+	test "should have 2 records" do
+		assert_equal 2, model_name.constantize.all.length
+	end
+
 end

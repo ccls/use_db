@@ -8,10 +8,10 @@ require File.join(File.dirname(__FILE__), 'boot')
 
 Rails::Initializer.run do |config|
 
-	config.plugin_paths = [
-		File.expand_path(File.join(File.dirname(__FILE__),'../..'))
-	]
-	config.plugins = [:use_db]
+#	config.plugin_paths = [
+#		File.expand_path(File.join(File.dirname(__FILE__),'../..'))
+#	]
+#	config.plugins = [:use_db]
 
 	if RUBY_PLATFORM =~ /java/
 		config.gem 'activerecord-jdbcsqlite3-adapter',
@@ -33,4 +33,12 @@ Rails::Initializer.run do |config|
 		File.join( Rails.root,'config','gamma_database.yml')
 	]
 	USE_DB_CONFIG = "#{RAILS_ROOT}/config/my_use_db.yml"
+
+	config.after_initialize do
+		require 'use_db'
+		require 'alpha'
+		require 'beta'
+		require 'gamma'
+		require 'normal'
+	end
 end

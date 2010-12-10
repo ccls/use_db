@@ -1,49 +1,69 @@
-module ActiveRecord
-	class Migration
-		class << self
-			def method_missing(method, *arguments, &block)
-				say_with_time "#{method}(#{arguments.map { |a| a.inspect }.join(", ")})" do
-					arguments[0] = Migrator.proper_table_name(arguments.first) unless arguments.empty? || method == :execute
-					if (self.respond_to?(:database_model))
-						write "Using custom database model's connection (#{self.database_model}) for this migration"
-						eval("#{self.database_model}.connection.send(method, *arguments, &block)")
-					else
-						ActiveRecord::Base.connection.send(method, *arguments, &block)
-					end
+module UseDb::Migration
+
+	def self.included(base)
+		unless base.respond_to?(:method_missing_without_connection_swap)
+			base.extend(ClassMethods)
+			base.class_eval do
+				class << self
+					alias_method_chain :method_missing, :connection_swap
+				end
+			end 
+		end 
+	end
+
+	module ClassMethods
+
+		def method_missing_with_connection_swap(method, *arguments, &block)
+			say_with_time "#{method}(#{arguments.map { |a| a.inspect }.join(", ")})" do
+				arguments[0] = ActiveRecord::Migrator.proper_table_name(arguments.first
+					) unless arguments.empty? || method == :execute
+				if (self.respond_to?(:database_model))
+					write "Using custom database model's connection (#{self.database_model}) for this migration"
+					eval("#{self.database_model}.connection.send(method, *arguments, &block)")
+				else
+					ActiveRecord::Base.connection.send(method, *arguments, &block)
+#					method_missing_without_connection_swap(method, *arguments, &block)
 				end
 			end
+		end
 
-			def uses_db?
-				true
-			end
+		def uses_db?
+			true
 		end
+
 	end
-	class Migrator
-		class << self
-			def get_all_versions
-#				puts "in use_db get_all_versions"
-#				Base.connection.select_values("SELECT version FROM #{schema_migrations_table_name}").map(&:to_i).sort
-				UseDbPlugin.all_use_dbs.collect(&:connection).collect{|c|
-					c.initialize_schema_migrations_table	# in case it doesn't exist
-					c.select_values("SELECT version FROM #{schema_migrations_table_name}").map(&:to_i)
-				}.flatten.uniq.sort
-			end
-		end
-	end
+
 end
+ActiveRecord::Migration.send(:include,UseDb::Migration)
 
-#class ActiveRecord::ConnectionAdapters::ConnectionHandler
-#	def retrieve_connection_pool_with_diff_conn(klass)
-##		klass = ($my_klass.nil?)? klass : $my_klass
-##puts klass
-#		retrieve_connection_pool_without_diff_conn(klass)
-##		$my_klass = nil
-#	end
-#	alias_method_chain :retrieve_connection_pool, :diff_conn
-#end
+module UseDb::Migrator
 
+	def self.included(base)
+		unless base.respond_to?(:get_all_versions_without_connection_swap)
+			base.extend(ClassMethods)
+			base.alias_method_chain( :record_version_state_after_migrating, :connection_swap
+				) unless base.methods.include?(:record_version_state_after_migrating_without_connection_swap)
+			base.class_eval do
+				class << self
+					alias_method_chain :get_all_versions, :connection_swap
+				end
+			end 
+		end 
+	end
 
-class ActiveRecord::Migrator
+	module ClassMethods
+
+		def get_all_versions_with_connection_swap
+#			puts "in use_db get_all_versions"
+#			Base.connection.select_values("SELECT version FROM #{schema_migrations_table_name}").map(&:to_i).sort
+			UseDbPlugin.all_use_dbs.collect(&:connection).collect{|c|
+				c.initialize_schema_migrations_table	# in case it doesn't exist
+				c.select_values("SELECT version FROM #{schema_migrations_table_name}").map(&:to_i)
+			}.flatten.uniq.sort
+		end
+
+	end
+
 	def record_version_state_after_migrating_with_connection_swap(version)
 		just_migrated = migrations.detect { |m| m.version == version }
 		load(just_migrated.filename)
@@ -64,5 +84,6 @@ class ActiveRecord::Migrator
 			record_version_state_after_migrating_without_connection_swap(version)
 		end
 	end
-	alias_method_chain :record_version_state_after_migrating, :connection_swap
+
 end
+ActiveRecord::Migrator.send(:include,UseDb::Migrator)

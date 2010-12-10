@@ -60,8 +60,4 @@ module UseDbPlugin
 	end
 
 end
-
-#	I think that this was only used in rake tasks and is not anymore.
-#class UseDbPluginClass
-#	extend UseDbPlugin
-#end
+ActiveRecord::Base.extend(UseDbPlugin)
