@@ -24,7 +24,7 @@ Rails::Initializer.run do |config|
 		config.gem 'mysql'
 		config.gem "sqlite3-ruby", :lib => "sqlite3"
 	end
-	config.gem "jakewendt-simply_testable", :lib => "simply_testable"
+	config.gem "jakewendt-simply_testable"	#, :lib => "simply_testable"
 
 	config.time_zone = 'UTC'
 
