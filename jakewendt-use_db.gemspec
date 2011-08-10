@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{jakewendt-use_db}
-  s.version = "0.9.0"
+  s.version = "0.9.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["David Stevenson", "George 'Jake' Wendt"]
-  s.date = %q{2011-02-14}
+  s.date = %q{2011-08-10}
   s.description = %q{Gem version of use_db rails plugin}
   s.email = %q{github@jake.otherinbox.com}
   s.extra_rdoc_files = [
@@ -26,11 +26,12 @@ Gem::Specification.new do |s|
     "lib/use_db/tasks.rb",
     "lib/use_db/test_model.rb",
     "lib/use_db/use_db_plugin.rb",
-    "lib/use_db/use_db_test.rb"
+    "lib/use_db/use_db_test.rb",
+    "rails/init.rb"
   ]
   s.homepage = %q{http://github.com/jakewendt/use_db}
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.5.2}
+  s.rubygems_version = %q{1.6.2}
   s.summary = %q{Gem version of use_db rails plugin}
 
   if s.respond_to? :specification_version then
