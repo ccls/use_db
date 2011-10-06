@@ -18,11 +18,11 @@ require 'tasks/rails'
 begin
 	require 'jeweler'
 	Jeweler::Tasks.new do |gem|
-		gem.name = "jakewendt-use_db"
+		gem.name = "ccls-use_db"
 		gem.summary = %Q{Gem version of use_db rails plugin}
 		gem.description = %Q{Gem version of use_db rails plugin}
-		gem.email = "github@jake.otherinbox.com"
-		gem.homepage = "http://github.com/jakewendt/use_db"
+		gem.email = "github@jakewendt.com"
+		gem.homepage = "http://github.com/ccls/use_db"
 		gem.authors = ["David Stevenson","George 'Jake' Wendt"]
 		# gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
 

@@ -4,19 +4,19 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{jakewendt-use_db}
+  s.name = %q{ccls-use_db}
   s.version = "0.9.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["David Stevenson", "George 'Jake' Wendt"]
-  s.date = %q{2011-08-10}
+  s.date = %q{2011-10-06}
   s.description = %q{Gem version of use_db rails plugin}
-  s.email = %q{github@jake.otherinbox.com}
+  s.email = %q{github@jakewendt.com}
   s.extra_rdoc_files = [
     "README.rdoc"
   ]
   s.files = [
-    "lib/jakewendt-use_db.rb",
+    "lib/ccls-use_db.rb",
     "lib/tasks/use_db_tasks.rake",
     "lib/use_db.rb",
     "lib/use_db/configurations.rb",
@@ -29,7 +29,7 @@ Gem::Specification.new do |s|
     "lib/use_db/use_db_test.rb",
     "rails/init.rb"
   ]
-  s.homepage = %q{http://github.com/jakewendt/use_db}
+  s.homepage = %q{http://github.com/ccls/use_db}
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.6.2}
   s.summary = %q{Gem version of use_db rails plugin}

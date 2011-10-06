@@ -1,1 +1,1 @@
-require "jakewendt-use_db"
+require "ccls-use_db"
