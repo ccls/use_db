@@ -35,7 +35,7 @@ begin
 		gem.test_files = []
 
 		gem.add_dependency('rails', '~> 2')
-		gem.add_dependency('jakewendt-rails_extension')
+		gem.add_dependency('ccls-rails_extension')
 	end
 	Jeweler::GemcutterTasks.new
 rescue LoadError
