@@ -24,7 +24,8 @@ Rails::Initializer.run do |config|
 		config.gem 'mysql'
 		config.gem 'sqlite3'
 	end
-	config.gem "ccls-rails_extension"
+#	config.gem "ccls-rails_extension"
+	config.gem "ccls-common_lib"
 	config.gem "ccls-html_test"
 
 	config.time_zone = 'UTC'
